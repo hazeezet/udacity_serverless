@@ -96,8 +96,11 @@ export async function updateTodo(todo: TodoUpdate, todoId: string, userId: strin
 		const DB = new DocumentClient();
 		await DB.update({
 			TableName: "todoTable",
-			UpdateExpression: "set name = :name, dueDate = :dueDate, done = :done",
+			UpdateExpression: "set #name = :name, dueDate = :dueDate, done = :done",
 			ExpressionAttributeValues: {":name": `${todo.name}`, ":dueDate": `${todo.dueDate}`, ":done": `${todo.done}`},
+			ExpressionAttributeNames: {
+				"#name": "name"
+			},
 			Key: {
 				todoId,
 				userId
