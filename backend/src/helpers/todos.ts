@@ -1,4 +1,4 @@
-import { createTodo, getTodos, deleteTodo, updateTodo } from './todosAcess'
+import { createTodo, getTodos, deleteTodo, updateTodo, generateUrl } from './todosAcess'
 // import { AttachmentUtils } from './attachmentUtils';
 // import { TodoItem } from '../models/TodoItem'
 import { CreateTodoRequest } from '../requests/CreateTodoRequest';
@@ -36,6 +36,14 @@ export function deleteUserTodo(todoId: string, userId: string):Promise <{}> {
 export function updateUserTodo(updatedTodo: UpdateTodoRequest, todoId: string, userId: string):Promise <{}> {
 	return new Promise(async (resolve, reject) => {
 		const todo = await updateTodo(updatedTodo, todoId, userId);
+		if(todo.status == "ok") resolve(todo.data)
+		reject(todo.data);
+	});
+}
+
+export function createAttachmentPresignedUrl(todoId: string, userId: string):Promise <{}> {
+	return new Promise(async (resolve, reject) => {
+		const todo = await generateUrl(todoId, userId);
 		if(todo.status == "ok") resolve(todo.data)
 		reject(todo.data);
 	});

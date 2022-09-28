@@ -13,8 +13,7 @@ module.exports = {
   output: {
     libraryTarget: 'commonjs',
     path: path.join(__dirname, '.webpack'),
-    filename: '[name].js',
-	hashFunction: "SHA-256"
+    filename: '[name].js'
   },
   target: 'node',
   module: {

@@ -1,4 +1,4 @@
-// import * as AWS from 'aws-sdk'
+import * as AWS from 'aws-sdk'
 // import * as AWSXRay from 'aws-xray-sdk'
 import { DocumentClient } from 'aws-sdk/clients/dynamodb';
 import dateFormat from 'dateformat';
@@ -12,7 +12,13 @@ const logger = createLogger('TodosAccess')
 
 // TODO: Implement the dataLayer logic
 
+const S3 = new AWS.S3({
+	signatureVersion: "v4"
+})
 const todoTable = process.env.TODOS_TABLE;
+const bucketName = process.env.ATTACHMENT_S3_BUCKET;
+const urlExp = process.env.SIGNED_URL_EXPIRATION;
+
 const response = {
 	status: "failed",
 	message: "",
@@ -25,7 +31,8 @@ export async function getTodos(userId: string) {
 		const result = await DB.query({
 			TableName: todoTable,
 			KeyConditionExpression: "userId = :userId",
-			ExpressionAttributeValues: {":userId":`${userId}`}
+			ExpressionAttributeValues: {":userId":`${userId}`},
+			ScanIndexForward: false
 		}).promise();
 		
 		const todos = result.Items;
@@ -80,6 +87,11 @@ export async function deleteTodo(todoId: string, userId: string) {
 				userId
 			}
 		}).promise();
+		var params = {  Bucket: bucketName, Key: todoId };
+
+		S3.deleteObject(params, function(err) {
+			if (err) logger.log("error", err.stack);
+		});
 		
 		response.status = "ok"
 		return response;
@@ -95,11 +107,11 @@ export async function updateTodo(todo: TodoUpdate, todoId: string, userId: strin
 	try {
 		const DB = new DocumentClient();
 		await DB.update({
-			TableName: "todoTable",
-			UpdateExpression: "set #name = :name, dueDate = :dueDate, done = :done",
-			ExpressionAttributeValues: {":name": `${todo.name}`, ":dueDate": `${todo.dueDate}`, ":done": `${todo.done}`},
+			TableName: todoTable,
+			UpdateExpression: "set #tit = :val, dueDate = :dueDate, done = :done",
+			ExpressionAttributeValues: {":val": `${todo.name}`, ":dueDate": `${todo.dueDate}`, ":done": `${todo.done}`},
 			ExpressionAttributeNames: {
-				"#name": "name"
+				"#tit": "name"
 			},
 			Key: {
 				todoId,
@@ -115,5 +127,39 @@ export async function updateTodo(todo: TodoUpdate, todoId: string, userId: strin
 		return response;
 	}
 	
+}
+
+export async function generateUrl(todoId: string, userId: string) {
+	try {
+		const uploadUrl = getUploadUrl(todoId);
+		const imageUrl = `https://${bucketName}.s3.amazonaws.com/${todoId}`;
+
+		const DB = new DocumentClient();
+		await DB.update({
+			TableName: todoTable,
+			UpdateExpression: "set attachmentUrl = :url",
+			ExpressionAttributeValues: {":url": `${imageUrl}`},
+			Key: {
+				todoId,
+				userId
+			}
+		}).promise();
+		
+		response.data = uploadUrl
+		response.status = "ok";
+		return response;
+	} 
+	catch (error) {
+		logger.log('error', error);
+		return response;
+	}
+
+	function getUploadUrl(todoId: string){
+		return S3.getSignedUrl('putObject',{
+			Bucket: bucketName,
+			Key: todoId,
+			Expires: parseInt(urlExp)
+		})
+	}
 }
 

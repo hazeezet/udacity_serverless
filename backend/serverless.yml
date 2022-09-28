@@ -25,7 +25,7 @@ provider:
     TODOS_TABLE: Todos-${self:provider.stage}
     ATTACHMENT_TABLE: Todos-${self:provider.stage}
     TODOS_CREATED_AT_INDEX: CreatedAtIndex
-    ATTACHMENT_S3_BUCKET: serverless-c4-todo-images-${self:provider.stage}
+    ATTACHMENT_S3_BUCKET: udacity-serverless-todo-attachment-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
     AUTH_0_SECRET: g9c6_Ntg17ahkd_O_j_i3bXAkGYm5MbKk7WcAZN7r0GumvoiHa549lVJwXX-TQQf
 
@@ -99,7 +99,7 @@ functions:
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
 
-  # TODO: Configure this function
+  # TODO: Configure this function✅
   # Provide property for setting up CORS, Authorizer, iamRoleStatements, and request schemas
   UpdateTodo:
     handler: src/lambda/http/updateTodo.handler
@@ -137,6 +137,10 @@ functions:
     iamRoleStatements:
       - Effect: Allow
         Action:
+          - s3:DeleteObject
+        Resource: arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}
+      - Effect: Allow
+        Action:
           - dynamodb:DescribeTable
           - dynamodb:Query
           - dynamodb:Scan
@@ -146,14 +150,26 @@ functions:
           - dynamodb:DeleteItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
-  # TODO: Configure this function
+  # TODO: Configure this function✅
   # Provide property for setting up CORS, Authorizer, iamRoleStatements
-  # GenerateUploadUrl:
-  #   handler: src/lambda/http/generateUploadUrl.handler
-  #   events:
-  #     - http:
-  #         method: post
-  #         path: todos/{todoId}/attachment
+  GenerateUploadUrl:
+    handler: src/lambda/http/generateUploadUrl.handler
+    events:
+      - http:
+          method: post
+          path: todos/{todoId}/attachment
+          cors: true
+          authorizer: Auth
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - 's3:PutObject'
+          - 's3:GetObject'
+        Resource: 'arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*'
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
 resources:
   Resources:
@@ -164,7 +180,7 @@ resources:
     #   Type: AWS::ApiGateway::GatewayResponse
     #   Properties:
     
-    # TODO: Create a DynamoDB table with local secondary index and a composite key
+    # TODO: Create a DynamoDB table with local secondary index and a composite key✅
     TodosTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -174,45 +190,45 @@ resources:
             AttributeType: S
           - AttributeName: userId
             AttributeType: S
-          # - AttributeName: todoId
-          #   AttributeType: S
-          # - AttributeName: createdAt
-          #   AttributeType: S
-          # - AttributeName: name
-          #   AttributeType: S
-          # - AttributeName: dueDate
-          #   AttributeType: S
-          # - AttributeName: done
-          #   AttributeType: S
-          # - AttributeName: attachmentUrl
-          #   AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
           - AttributeName: todoId
             KeyType: RANGE
-          # - AttributeName: todoId
-          #   KeyType: RANGE
-          # - AttributeName: createdAt
-          #   KeyType: RANGE
-          # - AttributeName: name
-          #   KeyType: RANGE
-          # - AttributeName: dueDate
-          #   KeyType: RANGE
-          # - AttributeName: done
-          #   KeyType: RANGE
-          # - AttributeName: attachmentUrl
-          #   KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
 
     # TODO: Complete the bucket properties below. 
     # Do not forget to add the CorsConfiguration propoerty
-    # AttachmentsBucket:
-    #   Type: AWS::S3::Bucket
-    #   Properties:
+    AttachmentsBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.environment.ATTACHMENT_S3_BUCKET}
+        CorsConfiguration:
+          CorsRules: 
+            - AllowedOrigins: 
+                - "*"
+              AllowedHeaders:
+                - "*"
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+                - DELETE
+                - HEAD
+              MaxAge: 3000
 
     # TODO: Complete the policy below and attach it to the bucket defined above
     # For cross referencing the name of the bucket, use "!Ref AttachmentsBucket"
-    # BucketPolicy:
-    #   Type: AWS::S3::BucketPolicy
-    #   Properties:
+    BucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        PolicyDocument:
+          Id: MyPolicy
+          Version: "2012-10-17"
+          Statement:
+            - Sid: PublicReadForGetBucketObjects
+              Effect: Allow
+              Principal: "*"
+              Action: "s3:GetObject"
+              Resource: 'arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*'
+        Bucket: !Ref AttachmentsBucket
