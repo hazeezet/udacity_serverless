@@ -14,6 +14,7 @@ module.exports = {
     libraryTarget: 'commonjs',
     path: path.join(__dirname, '.webpack'),
     filename: '[name].js',
+	hashFunction: "xxhash64"
   },
   target: 'node',
   module: {
