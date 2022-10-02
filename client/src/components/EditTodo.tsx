@@ -37,7 +37,7 @@ export class EditTodo extends React.PureComponent<
     if (!files) return
 
     this.setState({
-      file: files[0]
+      file: URL.createObjectURL(files[0])
     })
   }
 

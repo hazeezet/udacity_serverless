@@ -1,8 +1,13 @@
+export interface Content {
+	todoId: string
+	createdAt: string
+	name: string
+	dueDate: string
+	done: boolean
+	attachmentUrl?: string
+}
+
 export interface Todo {
-  todoId: string
-  createdAt: string
-  name: string
-  dueDate: string
-  done: boolean
-  attachmentUrl?: string
+	items: Content[]
+	nextKey: string
 }

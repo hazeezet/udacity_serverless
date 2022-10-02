@@ -1,26 +1,33 @@
-import { apiEndpoint } from '../config'
-import { Todo } from '../types/Todo';
+import { apiEndpoint } from '../config';
+import { Content, Todo } from '../types/Todo';
 import { CreateTodoRequest } from '../types/CreateTodoRequest';
-import Axios from 'axios'
+import Axios from 'axios';
+import jimp from "jimp";
 import { UpdateTodoRequest } from '../types/UpdateTodoRequest';
 
-export async function getTodos(idToken: string): Promise<Todo[]> {
+export async function getTodos(idToken: string, limit?: string, nextKey?: string, sort?: string): Promise<Todo> {
   console.log('Fetching todos')
 
-  const response = await Axios.get(`${apiEndpoint}/todos`, {
+  const response = await Axios({
+	url: `${apiEndpoint}/todos`,
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${idToken}`
     },
+	params: {
+		limit: limit,
+		next: nextKey,
+		sort: sort == '' ? undefined : sort
+	}
   })
   console.log('Todos:', response.data)
-  return response.data.items
+  return response.data
 }
 
 export async function createTodo(
   idToken: string,
   newTodo: CreateTodoRequest
-): Promise<Todo> {
+): Promise<Content> {
   const response = await Axios.post(`${apiEndpoint}/todos`,  JSON.stringify(newTodo), {
     headers: {
       'Content-Type': 'application/json',
@@ -69,5 +76,12 @@ export async function getUploadUrl(
 }
 
 export async function uploadFile(uploadUrl: string, file: Buffer): Promise<void> {
-  await Axios.put(uploadUrl, file)
+
+	const image = await jimp.read(file);
+	image.resize(50,50);
+
+	const buff = await image.getBufferAsync(jimp.MIME_PNG)
+	console.log(buff)
+
+	await Axios.put(uploadUrl, buff)
 }

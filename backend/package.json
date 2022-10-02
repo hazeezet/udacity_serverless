@@ -1,6 +1,6 @@
 {
   "name": "serverless-todo-app",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Serverless TODO image app",
   "dependencies": {
     "@types/axios": "^0.14.0",
@@ -26,6 +26,7 @@
     "aws-sdk": "^2.433.0",
     "serverless-aws-documentation": "^1.1.0",
     "serverless-iam-roles-per-function": "^3.2.0-e97ab49",
+    "serverless-offline": "^11.0.0",
     "serverless-plugin-canary-deployments": "^0.4.7",
     "serverless-plugin-tracing": "^2.0.0",
     "serverless-reqvalidator-plugin": "^1.0.3",

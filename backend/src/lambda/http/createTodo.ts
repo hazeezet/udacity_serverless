@@ -23,7 +23,7 @@ export const handler = middy(
 	catch (error) {
 		return{
 			statusCode: 500,
-			body: error
+			body: "something went wrong"
 		}
 	}
 })

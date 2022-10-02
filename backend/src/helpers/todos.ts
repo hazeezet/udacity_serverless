@@ -1,17 +1,19 @@
 import { createTodo, getTodos, deleteTodo, updateTodo, generateUrl } from './todosAcess'
-// import { AttachmentUtils } from './attachmentUtils';
-// import { TodoItem } from '../models/TodoItem'
 import { CreateTodoRequest } from '../requests/CreateTodoRequest';
 import { UpdateTodoRequest } from '../requests/UpdateTodoRequest';
-// import { createLogger } from '../utils/logger'
-// import * as uuid from 'uuid'
-// import * as createError from 'http-errors'
+import { Key } from 'readline';
 
 // TODO: Implement businessLogic
 
-export function getUserTodos(userId: string) {
+interface params {
+	limit: number,
+	nextKey: Key,
+	sort: string
+}
+
+export function getUserTodos(userId: string, params: params) {
 	return new Promise(async (resolve, reject) => {
-		const todo = await getTodos(userId);
+		const todo = await getTodos(userId, params);
 		if(todo.status == "ok") resolve(todo.data)
 		reject(todo.data);
 	});

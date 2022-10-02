@@ -1,4 +1,4 @@
-import 'source-map-support/register'
+import 'source-map-support/register';
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import * as middy from 'middy'
@@ -25,7 +25,7 @@ export const handler = middy(
 		catch (error) {
 			return{
 				statusCode: 500,
-				body: error
+				body: "something went wrong"
 			}
 		}
 	}
