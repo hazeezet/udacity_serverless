@@ -9,7 +9,6 @@ import {
   Grid,
   Header,
   Icon,
-  Image,
   Loader
 } from 'semantic-ui-react'
 
@@ -68,7 +67,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
 			const now = dateFormat(date, 'yyyy-mm-dd') as string
 
 			if(now >= this.state.dueDate) return alert("Due date should be in the future");
-			if(this.state.newTodoName == '') return alert("Todo name is empty");
+			if(this.state.newTodoName === '') return alert("Todo name is empty");
 			this.setState({
 				creating: true
 			})
@@ -172,7 +171,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
 		this.setState({
 			loadingTodos: true
 		})
-		const sort = event.target.value == "" ? undefined : "dueDate"
+		const sort = event.target.value === "" ? undefined : "dueDate"
 		try {
 			const todos = await getTodos(this.props.auth.getIdToken(), this.state.todoPerPage, undefined, sort)
 			this.setState({
@@ -295,8 +294,8 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
 					<div style={{width:"100%",display:"flex", flexDirection: "column", alignItems: "center"}}>
 						<h4>sort by</h4>
 						<select style={{marginLeft:"10px"}} onChange={this.onSort}>
-							<option selected={this.state.sort == ''} value="">created</option>
-							<option selected={this.state.sort != ''} value="dueDate">Due Date</option>
+							<option selected={this.state.sort === ''} value="">created</option>
+							<option selected={this.state.sort !== ''} value="dueDate">Due Date</option>
 						</select>
 					</div>
 

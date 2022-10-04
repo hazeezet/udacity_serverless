@@ -17,7 +17,7 @@ export async function getTodos(idToken: string, limit?: string, nextKey?: string
 	params: {
 		limit: limit,
 		next: nextKey,
-		sort: sort == '' ? undefined : sort
+		sort: sort === '' ? undefined : sort
 	}
   })
   console.log('Todos:', response.data)
