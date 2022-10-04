@@ -3,7 +3,7 @@ import 'source-map-support/register'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import * as middy from 'middy';
 import { cors, httpErrorHandler } from 'middy/middlewares';
-import { deleteUserTodo } from '../../helpers/todos';
+import { deleteUserTodo } from '../../helpers/businessLogic';
 import { getUserId } from '../utils';
 
 export const handler = middy(

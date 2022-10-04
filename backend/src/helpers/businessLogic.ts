@@ -1,8 +1,8 @@
-import { createTodo, getTodos, deleteTodo, updateTodo, generateUrl } from './todosAcess'
+import { createTodo, getTodos, deleteTodo, updateTodo, generateUrl } from './dataLayer'
 import { CreateTodoRequest } from '../requests/CreateTodoRequest';
 import { UpdateTodoRequest } from '../requests/UpdateTodoRequest';
 import { Key } from 'readline';
-import { deleteBucket } from './attachment';
+import { deleteBucket } from './fileManagement';
 
 // TODO: Implement businessLogic
 

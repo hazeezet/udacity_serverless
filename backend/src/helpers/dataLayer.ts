@@ -4,7 +4,7 @@ import { createLogger } from '../utils/logger';
 import { v4 as uuid}  from 'uuid';
 import { TodoUpdate } from '../models/TodoUpdate';
 import { Key } from 'readline';
-import { getUploadUrl } from './attachment';
+import { getUploadUrl } from './fileManagement';
 
 // TODO: Implement the dataLayer logic
 
